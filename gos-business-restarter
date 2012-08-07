@@ -36,7 +36,6 @@ BIZNUM=${4:-8}
 PRODUCT=${5:-12}
 BIZVAL=${6:-0}
 COOKIES_FILE="${7:-.}/gos-cookies.txt-$$"
-echo $COOKIES_FILE
 
 # Login.
 wget $WGET_OPTIONS \
