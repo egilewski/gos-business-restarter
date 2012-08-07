@@ -1,0 +1,73 @@
+#!/bin/bash
+
+if [[ $1 == '-h' || $1 == '--help' ]]
+then
+    echo "GoS game businesses restarter 1.0"
+    echo "Should support Herb Gardens, Kitchens, Breweries, Mines."
+    echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT BIZVAL CELL_COUNT COOKIES_DIR]"
+    echo ""
+    echo "BIZNUM is business ID. 8 is Mine, 5 is Brewery. You can find out ID for another business with Firebug or analogue, first parameter for subAction(). By default will work with mines."
+    echo ""
+    echo "PRODUCT is type of good. Default is 12 (most advances for mines and other except Farms, where most advanced is 18)."
+    echo "BIZVAL is unknown to me. Default 0."
+    echo "CELL_COUNT is number of purchased cells for this business in this city. Default to 9 (all possible). Helps saving time and traffic, nothing more."
+    echo "COOKIES_DIR is path to diurectoryyou want script to store cookies while it's working. Default to curent directory."
+    echo ""
+    echo "Parallel work with different characters should be supported, but wasn't tested."
+    echo ""
+    echo "Report bugs here: https://github.com/egilewski/gos-business-restarter"
+    exit
+fi
+
+BASEURL='http://gos.talij.com/'
+LOGINURL='verify.php'
+BUSINESSURL='mybusinesses.php'
+
+WGET_OPTIONS='-O /dev/null'
+
+NAME=$1
+HOUSE=$2
+PASSWORD=$3
+
+BIZACT_SELL=5
+BIZACT_START=4
+
+BIZNUM=${4:-8}
+PRODUCT=${5:-12}
+BIZVAL=${6:-0}
+COOKIES_FILE="${7:-.}/gos-cookies.txt-$$"
+echo $COOKIES_FILE
+
+# Login.
+wget $WGET_OPTIONS \
+    --save-cookies "$COOKIES_FILE" \
+    --post-data="lastname=$HOUSE&password=$PASSWORD&userid=$NAME&mode=0&submit=Enter+World" \
+    "$BASEURL$LOGINURL" \
+    &>/dev/null
+
+# For every cell in business (will do nothing for cells not bought).
+for cell_number in {0..8}
+do
+    # Match game interface cell number.
+    interface_cell_number=$((cell_number+1))
+
+    # Sell good and start new production.
+    echo -n "Selling cell #$interface_cell_number... "
+    wget $WGET_OPTIONS \
+        --load-cookies "$COOKIES_FILE" \
+        --post-data="biznum=$BIZNUM&bizact=$BIZACT_SELL&bizval=$BIZVAL&bizsub=$cell_number" \
+        "$BASEURL$BUSINESSURL" \
+        &>/dev/null
+    echo "done"
+
+    echo -n "Starting cell #$interface_cell_number... "
+    wget $WGET_OPTIONS \
+        --load-cookies "$COOKIES_FILE" \
+        --post-data="biznum=$BIZNUM&bizact=$BIZACT_START&bizval=$BIZVAL&bizsub=$cell_number&product=$PRODUCT" \
+        "$BASEURL$BUSINESSURL" \
+        &>/dev/null
+    echo "done"
+done
+
+# Important: remove cookies.
+rm -f "COOKIES_FILE"
