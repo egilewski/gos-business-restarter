@@ -8,7 +8,7 @@ then
     echo ""
     echo "BIZNUM is business ID. 8 is Mine, 5 is Brewery, 7 is Farm. You can find out ID for another business with Firebug or analogue, first parameter for subAction(). By default will work with mines."
     echo ""
-    echo "PRODUCT is type of good. Default is 12 (most advances for mines and other except Farms, where most advanced is 18)."
+    echo "PRODUCT is type of good. Default is 12 (most advanced for mines and other except Farms, where most advanced is 18)."
     echo "BIZVAL is unknown to me. Default 0."
     echo "CELL_COUNT is number of purchased cells for this business in this city. Default to 9 (all possible). Helps saving time and traffic, nothing more."
     echo "COOKIES_DIR is path to diurectoryyou want script to store cookies while it's working. Default to curent directory."
