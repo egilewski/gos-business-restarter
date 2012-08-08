@@ -35,7 +35,8 @@ BIZACT_START=4
 BIZNUM=${4:-8}
 PRODUCT=${5:-12}
 BIZVAL=${6:-0}
-COOKIES_FILE="${7:-.}/gos-cookies.txt-$$"
+CELL_COUNT=${7:-9}
+COOKIES_FILE="${8:-.}/gos-cookies.txt-$$"
 
 # Login.
 wget $WGET_OPTIONS \
@@ -45,7 +46,7 @@ wget $WGET_OPTIONS \
     &>/dev/null
 
 # For every cell in business (will do nothing for cells not bought).
-for cell_number in {0..8}
+for cell_number in {0..$((CELL_COUNT-1))}
 do
     # Match game interface cell number.
     interface_cell_number=$((cell_number+1))
