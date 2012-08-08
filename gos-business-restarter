@@ -2,7 +2,7 @@
 
 if [[ $1 == '-h' || $1 == '--help' ]]
 then
-    echo "GoS game businesses restarter 1.1"
+    echo "GoS game businesses restarter 1.1.1"
     echo "Should support Herb Gardens, Kitchens, Breweries, Mines."
     echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT BIZVAL CELL_COUNT COOKIES_DIR]"
     echo ""
@@ -46,7 +46,7 @@ wget $WGET_OPTIONS \
     &>/dev/null
 
 # For every cell in business (will do nothing for cells not bought).
-for cell_number in {0..$((CELL_COUNT-1))}
+for cell_number in `seq 0 $((CELL_COUNT-1))`
 do
     # Match game interface cell number.
     interface_cell_number=$((cell_number+1))
