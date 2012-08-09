@@ -7,4 +7,4 @@ GoS is http://gos.talij.com/
 
 Run "gos-business-restarter --help" to see list of options.
 
-Version 1.0.
+Version 1.2
