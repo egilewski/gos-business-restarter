@@ -2,13 +2,13 @@
 
 if [[ $1 == '-h' || $1 == '--help' ]]
 then
-    echo "GoS game businesses restarter 1.1.2"
+    echo "GoS game businesses restarter [test version]"
     echo "Should support Herb Gardens, Kitchens, Breweries, Mines, Farms."
-    echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT BIZVAL CELL_COUNT COOKIES_DIR]"
+    echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT CITY BIZVAL CELL_COUNT COOKIES_DIR]"
     echo ""
     echo "BIZNUM is business ID. 8 is Mine, 5 is Brewery, 7 is Farm. You can find out ID for another business with Firebug or analogue, first parameter for subAction(). By default will work with mines."
-    echo ""
     echo "PRODUCT is type of good. Default is 12 (most advanced for mines and other except Farms, where most advanced is 18)."
+    echo "CITY in which to work. Default to current. If provided with value that doesn't match current city, will Skim to it, work, and Skim back."
     echo "BIZVAL is unknown to me. Default 0."
     echo "CELL_COUNT is number of purchased cells for this business in this city. Default to 9 (all possible). Helps saving time and traffic, nothing more."
     echo "COOKIES_DIR is path to diurectoryyou want script to store cookies while it's working. Default to curent directory."
@@ -20,10 +20,10 @@ then
 fi
 
 BASEURL='http://gos.talij.com/'
-LOGINURL='verify.php'
-BUSINESSURL='mybusinesses.php'
-
-WGET_OPTIONS='-O /dev/null'
+LOGINURL="$BASEURL"'verify.php'
+BUSINESSURL="$BASEURL"'mybusinesses.php'
+WORLDURL="$BASEURL"'world.php'
+FEEDURL="$BASEURL"'business.php?shop=4&feed=1'
 
 NAME=$1
 HOUSE=$2
@@ -34,16 +34,49 @@ BIZACT_START=4
 
 BIZNUM=${4:-8}
 PRODUCT=${5:-12}
-BIZVAL=${6:-0}
-CELL_COUNT=${7:-9}
-COOKIES_FILE="${8:-.}/gos-cookies.txt-$$"
+CITY=$6
+BIZVAL=${7:-0}
+CELL_COUNT=${8:-9}
+COOKIES_FILE="${9:-.}/gos-cookies.txt-$$"
+
+WGET_OPTIONS="-q --load-cookies $COOKIES_FILE"
+
+
+# Skimming.
+skim () {
+    echo -n "Moving to $1... "
+    # Go to city.
+    wget -O /dev/null $WGET_OPTIONS \
+            --post-data="goto=$1&dir=1" \
+            "$WORLDURL"
+    # Feed horse.
+    wget -O /dev/null $WGET_OPTIONS \
+            "$FEEDURL"
+    echo "done"
+}
+
 
 # Login.
-wget $WGET_OPTIONS \
-    --save-cookies "$COOKIES_FILE" \
-    --post-data="lastname=$HOUSE&password=$PASSWORD&userid=$NAME&mode=0&submit=Enter+World" \
-    "$BASEURL$LOGINURL" \
-    &>/dev/null
+echo -n "Logging in as $NAME $HOUSE... "
+wget -q --save-cookies "$COOKIES_FILE" \
+        --post-data="lastname=$HOUSE&password=$PASSWORD&userid=$NAME&mode=0&submit=Enter+World" \
+        "$LOGINURL"
+echo "done"
+
+
+# Check if we are in desired city and move to it otherwise.
+if [[ $CITY ]]
+then
+    echo -n "Checking city... "
+    current_city=`wget -O - $WGET_OPTIONS "$WORLDURL" | grep -oP "(?<=<div id='message' class='littletext_b'>)[^<]*"` 
+    echo $current_city
+    if [[ $current_city != $CITY ]]
+    then
+        skim $CITY
+        return_to_city=$current_city
+    fi
+fi
+
 
 # For every cell in business (will do nothing for cells not bought).
 for cell_number in `seq 0 $((CELL_COUNT-1))`
@@ -53,21 +86,25 @@ do
 
     # Sell good and start new production.
     echo -n "Selling cell #$interface_cell_number... "
-    wget $WGET_OPTIONS \
-        --load-cookies "$COOKIES_FILE" \
-        --post-data="biznum=$BIZNUM&bizact=$BIZACT_SELL&bizval=$BIZVAL&bizsub=$cell_number" \
-        "$BASEURL$BUSINESSURL" \
-        &>/dev/null
+    wget -O /dev/null $WGET_OPTIONS \
+            --post-data="biznum=$BIZNUM&bizact=$BIZACT_SELL&bizval=$BIZVAL&bizsub=$cell_number" \
+            "$BUSINESSURL"
     echo "done"
 
     echo -n "Starting cell #$interface_cell_number... "
-    wget $WGET_OPTIONS \
-        --load-cookies "$COOKIES_FILE" \
-        --post-data="biznum=$BIZNUM&bizact=$BIZACT_START&bizval=$BIZVAL&bizsub=$cell_number&product=$PRODUCT" \
-        "$BASEURL$BUSINESSURL" \
-        &>/dev/null
+    wget -O /dev/null $WGET_OPTIONS \
+            --post-data="biznum=$BIZNUM&bizact=$BIZACT_START&bizval=$BIZVAL&bizsub=$cell_number&product=$PRODUCT" \
+            "$BUSINESSURL"
     echo "done"
 done
+
+
+# Return to original city.
+if [[ $return_to_city ]]
+then
+    skim $return_to_city
+fi
+
 
 # Important: remove cookies.
 rm -f "COOKIES_FILE"
