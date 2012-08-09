@@ -2,8 +2,8 @@
 
 if [[ $1 == '-h' || $1 == '--help' ]]
 then
-    echo "GoS game businesses restarter 1.1.1"
-    echo "Should support Herb Gardens, Kitchens, Breweries, Mines."
+    echo "GoS game businesses restarter 1.1.2"
+    echo "Should support Herb Gardens, Kitchens, Breweries, Mines, Farms."
     echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT BIZVAL CELL_COUNT COOKIES_DIR]"
     echo ""
     echo "BIZNUM is business ID. 8 is Mine, 5 is Brewery, 7 is Farm. You can find out ID for another business with Firebug or analogue, first parameter for subAction(). By default will work with mines."
