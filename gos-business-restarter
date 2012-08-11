@@ -23,6 +23,7 @@ BASEURL='http://gos.talij.com/'
 LOGINURL="$BASEURL"'verify.php'
 BUSINESSURL="$BASEURL"'mybusinesses.php'
 WORLDURL="$BASEURL"'world.php'
+TRAVELURL="$BASEURL"'map/traveling.php'
 FEEDURL="$BASEURL"'business.php?shop=4&feed=1'
 
 NAME=$1
@@ -51,7 +52,7 @@ skim () {
     # Go to city.
     wget -O /dev/null $WGET_OPTIONS \
             --post-data="goto=$destination_city_encoded&dir=1" \
-            "$WORLDURL"
+            "$TRAVELURL"
     # Feed horse.
     wget -O /dev/null $WGET_OPTIONS \
             "$FEEDURL"
