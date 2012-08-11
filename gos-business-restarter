@@ -2,7 +2,7 @@
 
 if [[ $1 == '-h' || $1 == '--help' ]]
 then
-    echo "GoS game businesses restarter 1.2"
+    echo "GoS game businesses restarter 1.2.1"
     echo "Should support Herb Gardens, Kitchens, Breweries, Mines, Farms."
     echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT CITY BIZVAL CELL_COUNT COOKIES_DIR]"
     echo ""
