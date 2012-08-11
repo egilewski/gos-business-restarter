@@ -23,6 +23,7 @@ BASEURL='http://gos.talij.com/'
 LOGINURL="$BASEURL"'verify.php'
 BUSINESSURL="$BASEURL"'mybusinesses.php'
 WORLDURL="$BASEURL"'world.php'
+TRAVELURL="$BASEURL"'map/traveling.php'
 FEEDURL="$BASEURL"'business.php?shop=4&feed=1'
 
 NAME=$1
@@ -44,11 +45,14 @@ WGET_OPTIONS="-q --load-cookies $COOKIES_FILE"
 
 # Skimming.
 skim () {
-    echo -n "Moving to $1... "
+    destination_city=$1
+    destination_city_encoded="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$destination_city")"
+
+    echo -n "Moving to $destination_city... "
     # Go to city.
     wget -O /dev/null $WGET_OPTIONS \
-            --post-data="goto=$1&dir=1" \
-            "$WORLDURL"
+            --post-data="goto=$destination_city_encoded&dir=1" \
+            "$TRAVELURL"
     # Feed horse.
     wget -O /dev/null $WGET_OPTIONS \
             "$FEEDURL"
@@ -65,15 +69,15 @@ echo "done"
 
 
 # Check if we are in desired city and move to it otherwise.
-if [[ $CITY ]]
+if [[ "$CITY" ]]
 then
-    echo -n "Checking city... "
+    echo -n "Checking current city... "
     current_city=`wget -O - $WGET_OPTIONS "$WORLDURL" | grep -oP "(?<=<div id='message' class='littletext_b'>)[^<]*"` 
-    echo $current_city
-    if [[ $current_city != $CITY ]]
+    echo "$current_city"
+    if [[ "$current_city" != "$CITY" ]]
     then
-        skim $CITY
-        return_to_city=$current_city
+        skim "$CITY"
+        return_to_city="$current_city"
     fi
 fi
 
@@ -100,9 +104,9 @@ done
 
 
 # Return to original city.
-if [[ $return_to_city ]]
+if [[ "$return_to_city" ]]
 then
-    skim $return_to_city
+    skim "$return_to_city"
 fi
 
 
