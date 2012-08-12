@@ -62,7 +62,8 @@ skim () {
 
 # Login.
 echo -n "Logging in as $NAME $HOUSE... "
-wget -q --save-cookies "$COOKIES_FILE" \
+wget -q -O /dev/null \
+        --save-cookies "$COOKIES_FILE" \
         --post-data="lastname=$HOUSE&password=$PASSWORD&userid=$NAME&mode=0&submit=Enter+World" \
         "$LOGINURL"
 echo "done"
