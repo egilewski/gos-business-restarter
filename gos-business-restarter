@@ -40,7 +40,7 @@ BIZVAL=${7:-0}
 CELL_COUNT=${8:-9}
 COOKIES_FILE="${9:-.}/gos-cookies.txt-$$"
 
-WGET_OPTIONS="-q --load-cookies $COOKIES_FILE"
+WGET_OPTIONS="-q --load-cookies '$COOKIES_FILE'"
 
 
 # Skimming.
@@ -58,6 +58,19 @@ skim () {
             "$FEEDURL"
     echo "done"
 }
+
+
+# Cleanup before exiting.
+cleanup () {
+    echo -n 'Cleaning up... '
+    rm -f "$COOKIES_FILE"
+    echo 'done'
+}
+
+
+# Cleanup on user interrupt.
+# Important: remove cookies with password.
+trap "cleanup" EXIT
 
 
 # Login.
@@ -109,7 +122,3 @@ if [[ "$return_to_city" ]]
 then
     skim "$return_to_city"
 fi
-
-
-# Important: remove cookies.
-rm -f "COOKIES_FILE"
