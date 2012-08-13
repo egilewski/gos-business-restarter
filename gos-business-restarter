@@ -40,7 +40,7 @@ BIZVAL=${7:-0}
 CELL_COUNT=${8:-9}
 COOKIES_FILE="${9:-.}/gos-cookies.txt-$$"
 
-WGET_OPTIONS="-q --load-cookies '$COOKIES_FILE'"
+WGET_OPTIONS="-q --load-cookies $COOKIES_FILE"
 
 
 # Skimming.
