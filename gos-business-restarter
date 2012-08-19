@@ -2,7 +2,7 @@
 
 if [[ $1 == '-h' || $1 == '--help' ]]
 then
-    echo "GoS game businesses restarter 1.2.1"
+    echo "GoS game businesses restarter 1.2.2"
     echo "Should support Herb Gardens, Kitchens, Breweries, Mines, Farms."
     echo "Usage:" `basename $0` "NAME HOUSE PASSWORD [BIZNUM PRODUCT CITY BIZVAL CELL_COUNT COOKIES_DIR]"
     echo ""
@@ -92,6 +92,10 @@ then
     then
         skim "$CITY"
         return_to_city="$current_city"
+        # Often first business cell isn't being restarted.
+        # I think there is some delay before character actually gets to city.
+        # So we'll wait.
+        sleep 5
     fi
 fi
 
